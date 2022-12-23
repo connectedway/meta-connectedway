@@ -28,18 +28,12 @@ EXTRA_OECMAKE = " \
     -DMBEDTLS_ROOT_DIR=${STAGING_DIR_TARGET}/usr \
 "
 
-python() {
-  S = d.getVar('S')
-  bb.warn(f"{S}")
-}
-
 do_install_append() {
+   install -d ${D}/${sysconfdir}		    
+   install -m 0644 ${S}/configs/linux_debug.xml ${D}/${sysconfdir}/openfiles.xml
 }
 
 PACKAGES =+ ""
-
-python samba_populate_packages() {
-}
 
 PACKAGESPLITFUNCS_prepend = ""
 
@@ -48,6 +42,7 @@ RDEPENDS_${PN} += ""
 FILES_${PN} = " \
     /usr/bin \
     /usr/lib \
+    ${sysconfdir}/openfiles.xml \
 "
 
 FILES_${PN}-base = ""
