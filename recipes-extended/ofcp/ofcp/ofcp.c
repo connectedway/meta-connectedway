@@ -786,9 +786,3 @@ int main (int argc, char **argp)
   return (0);
 }
 
-  
-OFC_VOID of_smb_load(OFC_VOID);
-void dummy(void)
-{
-  of_smb_load();
-}
