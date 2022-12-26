@@ -20,7 +20,7 @@ RDEPENDS_${PN} = " \
     mbedtls \
 "
 
-PACKAGES = "${PN} ${PN}-dev ${PN}-test ${PN}-dbg"
+PACKAGES = "${PN} ${PN}-dev ${PN}-test ${PN}-dbg ${PN}-staticdev"
 
 inherit cmake
 
@@ -36,12 +36,10 @@ do_install_append() {
 }
 
 FILES_${PN} = " \
-    /usr/lib/openfiles/libof_smb_shared.so.1.0.1 \
-    /usr/lib/openfiles/libof_smb_shared.so.1 \
-    /usr/lib/openfiles/libof_smb_shared.so \
-    /usr/lib/openfiles/libof_core_shared.so.1.0.1 \
-    /usr/lib/openfiles/libof_core_shared.so.1 \    
-    /usr/lib/openfiles/libof_core_shared.so \
+    /usr/lib/libof_smb_shared.so.1.0.1 \
+    /usr/lib/libof_core_shared.so.1.0.1 \
+    /usr/lib/libof_smb_shared.so.1 \
+    /usr/lib/libof_core_shared.so.1 \    
     ${sysconfdir}/openfiles.xml \
 "
 
@@ -61,13 +59,18 @@ FILES_${PN}-test = " \
 "
 
 FILES_${PN}-dev = " \
-    /usr/lib/openfiles/libof_core_static.a \
-    /usr/lib/openfiles/libof_smb_static.a \
-    /usr/include/openfiles \
+    /usr/lib/libof_smb_shared.so \
+    /usr/lib/libof_core_shared.so \
+    /usr/include/ofc \
+"
+
+FILES_${PN}-staticdev = " \
+    /usr/lib/libof_core_static.a \
+    /usr/lib/libof_smb_static.a \
 "
 
 FILES_${PN}-dbg = " \
     /usr/src \
     /usr/bin/openfiles/.debug \
-    /usr/lib/openfiles/.debug \
+    /usr/lib/.debug \
 "

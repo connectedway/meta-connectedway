@@ -35,7 +35,13 @@ DEPENDS = "openssl python3"
 RDEPENDS_${PN} += "libcrypto"
 PROVIDES += "polarssl"
 RPROVIDES_${PN} = "polarssl"
-EXTRA_OECMAKE = "-DUSE_SHARED_POLARSSL_LIBRARY=on -DLIB_INSTALL_DIR=${baselib} -DENABLE_TESTING=off"
+EXTRA_OECMAKE = " \
+    -DUSE_SHARED_POLARSSL_LIBRARY=on \
+    -DUSE_SHARED_MBEDTLS_LIBRARY=on \
+    -DLIB_INSTALL_DIR=${baselib} \
+    -DENABLE_TESTING=off \
+    -DCMAKE_MAKE_PROGRAM=${TMPDIR}/hosttools/make \
+"
 
 inherit cmake
 

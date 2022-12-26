@@ -2,13 +2,16 @@
  * Use of this source code is unrestricted
  */
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
 
-#include <openfiles/ofc/config.h>
-#include <openfiles/ofc/handle.h>
-#include <openfiles/ofc/types.h>
-#include <openfiles/ofc/file.h>
-#include <openfiles/ofc/waitset.h>
-#include <openfiles/ofc/queue.h>
+#include <ofc/config.h>
+#include <ofc/handle.h>
+#include <ofc/types.h>
+#include <ofc/file.h>
+#include <ofc/waitset.h>
+#include <ofc/queue.h>
 
 /* also must export ofc/core.h */
 /* also must export ofc/fstype.h */
@@ -318,20 +321,21 @@ static ASYNC_RESULT AsyncWriteResult(OFC_HANDLE wait_set,
   return (result);
 }
 
-static OFC_VOID destroy_buffer(OFC_FILE_BUFFER *buffer)
+static OFC_VOID destroy_buffer(struct copy_state *copy_state,
+			       OFC_FILE_BUFFER *buffer)
 {
   if (buffer->writeOverlapped != OFC_HANDLE_NULL)
     {
       /*
        * Destroy the overlapped I/O handle for each buffer
        */
-      OfcDestroyOverlapped(write_file, buffer->writeOverlapped);
+      OfcDestroyOverlapped(copy_state->write_file, buffer->writeOverlapped);
       buffer->writeOverlapped = OFC_HANDLE_NULL;
     }
 
   if (buffer->readOverlapped != OFC_HANDLE_NULL)
     {
-      OfcDestroyOverlapped(read_file, buffer->readOverlapped);
+      OfcDestroyOverlapped(copy_state->read_file, buffer->readOverlapped);
       buffer->readOverlapped = OFC_HANDLE_NULL;
     }
 
@@ -344,7 +348,8 @@ static OFC_VOID destroy_buffer(OFC_FILE_BUFFER *buffer)
   free(buffer);
 }
 
-static OFC_VOID destroy_buffer_list (OFC_HANDLE buffer_list)
+static OFC_VOID destroy_buffer_list (struct copy_state *copy_state,
+				     OFC_HANDLE buffer_list)
 {
   OFC_FILE_BUFFER *buffer;
 
@@ -352,11 +357,12 @@ static OFC_VOID destroy_buffer_list (OFC_HANDLE buffer_list)
        buffer != OFC_NULL;
        buffer = ofc_dequeue(buffer_list))
     {
-      destroy_buffer(buffer);
+      destroy_buffer(copy_state, buffer);
     }
 }
 
-static OFC_HANDLE alloc_buffer_list(OFC_HANDLE read_file,
+static OFC_HANDLE alloc_buffer_list(struct copy_state *copy_state,
+				    OFC_HANDLE read_file,
                                     OFC_HANDLE write_file)
 {
   OFC_HANDLE buffer_list;
@@ -367,7 +373,7 @@ static OFC_HANDLE alloc_buffer_list(OFC_HANDLE read_file,
   if (buffer_list == OFC_HANDLE_NULL)
     status = OFC_FALSE;
   
-  for (i = 0; i < NUM_FILE_BUFFERS && status; i++)
+  for (int i = 0; i < NUM_FILE_BUFFERS && status; i++)
     {
       /*
        * Get the buffer descriptor and the data buffer
@@ -411,7 +417,7 @@ static OFC_HANDLE alloc_buffer_list(OFC_HANDLE read_file,
             }
           else
             {
-              destroy_buffer(buffer);
+              destroy_buffer(copy_state, buffer);
               buffer = OFC_NULL;
             }
         }
@@ -419,7 +425,7 @@ static OFC_HANDLE alloc_buffer_list(OFC_HANDLE read_file,
 
   if (status == OFC_FALSE && buffer_list != OFC_HANDLE_NULL)
     {
-      destroy_buffer_list(buffer_list);
+      destroy_buffer_list(copy_state, buffer_list);
       buffer_list = OFC_HANDLE_NULL;
     }
 
@@ -470,7 +476,7 @@ static OFC_VOID destroy_copy_state(struct copy_state *copy_state)
 {
   if (copy_state->buffer_list != OFC_HANDLE_NULL)
     {
-      destroy_buffer_list (copy_state->buffer_list);
+      destroy_buffer_list (copy_state, copy_state->buffer_list);
       copy_state->buffer_list = OFC_HANDLE_NULL;
     }
   
@@ -505,7 +511,7 @@ static struct copy_state *init_copy_state(OFC_CTCHAR *rfilename,
   
   copy_state = malloc(sizeof(struct copy_state));
   if (copy_state == OFC_NULL)
-    *dwLastError = OFC_ERROR_NO_MORE_MEMORY;
+    *dwLastError = OFC_ERROR_NOT_ENOUGH_MEMORY;
   else
     {
       copy_state->read_file = OFC_HANDLE_NULL;
@@ -560,7 +566,7 @@ static struct copy_state *init_copy_state(OFC_CTCHAR *rfilename,
           copy_state->wait_set = ofc_waitset_create();
           if (copy_state->wait_set == OFC_HANDLE_NULL)
             {
-              *dwLastError = OFC_ERROR_NO_MORE_MEMORY;
+              *dwLastError = OFC_ERROR_NOT_ENOUGH_MEMORY;
             }
         }
 
@@ -569,11 +575,12 @@ static struct copy_state *init_copy_state(OFC_CTCHAR *rfilename,
           /*
            * And create our own buffer list that we will manage
            */
-          copy_state->buffer_list = alloc_buffer_list(copy_state->read_file,
+          copy_state->buffer_list = alloc_buffer_list(copy_state,
+						      copy_state->read_file,
                                                       copy_state->write_file);
 
-          if (buffer_list == OFC_HANDLE_NULL)
-            *dwLastError = OFC_ERROR_NO_MORE_MEMORY;
+          if (copy_state->buffer_list == OFC_HANDLE_NULL)
+            *dwLastError = OFC_ERROR_NOT_ENOUGH_MEMORY;
         }
 
       if (*dwLastError != OFC_ERROR_SUCCESS)
@@ -592,6 +599,7 @@ static OFC_DWORD feed_buffers(struct copy_state *copy_state)
   OFC_DWORD dwLen;
   OFC_DWORD dwLastError;
   OFC_DWORD dwFirstError;
+  ASYNC_RESULT result;
   /*
    * Now all our buffers should be busy doing reads.  Keep pumping
    * more data to read and service writes
@@ -705,7 +713,7 @@ static OFC_DWORD feed_buffers(struct copy_state *copy_state)
 
 static OFC_DWORD copy_async(OFC_CTCHAR *rfilename, OFC_CTCHAR *wfilename)
 {
-  struct copy_state copy_state;
+  struct copy_state *copy_state;
   OFC_DWORD dwLastError;
 
   dwLastError = OFC_ERROR_SUCCESS;
@@ -730,3 +738,46 @@ static OFC_DWORD copy_async(OFC_CTCHAR *rfilename, OFC_CTCHAR *wfilename)
   return (dwLastError);
 }
 
+int main (int argc, char **argp)
+{
+  OFC_TCHAR *rfilename;
+  OFC_TCHAR *wfilename;
+  size_t len;
+  mbstate_t ps;
+  OFC_DWORD ret;
+
+  if (argc != 3)
+    {
+      printf ("Usage: ofcp <source> <destination>\n");
+      exit (1);
+    }
+
+  memset(&ps, 0, sizeof(ps));
+  len = strlen(argp[1]);
+  rfilename = malloc(sizeof(wchar_t) * (len+1));
+  mbrtowc(rfilename, argp[1], len, &ps);
+
+  memset(&ps, 0, sizeof(ps));
+  len = strlen(argp[2]);
+  wfilename = malloc(sizeof(wchar_t) * (len+1));
+  mbrtowc(wfilename, argp[2], len, &ps);
+
+  printf("Copying %s to %s: ", argp[1], argp[2]);
+  fflush(stdout);
+
+  ret = copy_async(rfilename, wfilename);
+  if (ret == OFC_ERROR_SUCCESS)
+    {
+      printf("[ok]\n");
+      exit(0);
+    }
+  else
+    {
+      printf("[failed]\n");
+      printf("%s\n", ofc_get_error_string(ret));
+      exit(1);
+    }
+  return (0);
+}
+
+  
