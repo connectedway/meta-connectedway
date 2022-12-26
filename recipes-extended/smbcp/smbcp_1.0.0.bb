@@ -6,7 +6,7 @@ LICENSE = "BSD"
 
 SRC_URI = " \
     file://COPYING \
-    file://ofcp.c \
+    file://smbcp.c \
     file://Makefile \
 "
 
@@ -19,5 +19,5 @@ do_install () {
 }
 
 FILES_${PN} = " \
-    ${bindir}/openfiles/ofcp \
+    ${bindir}/openfiles/smbcp \
 "    

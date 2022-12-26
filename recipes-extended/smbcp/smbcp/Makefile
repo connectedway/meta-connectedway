@@ -1,14 +1,14 @@
-all: ofcp
+all: smbcp
 
-ofcp: ofcp.o
+smbcp: smbcp.o
 	$(CC) $(LDFLAGS) -o $@ $< -Wl,--no-as-needed -lof_smb_shared -lof_core_shared -lmbedtls -lkrb5 -lgssapi_krb5 
 
 %.o: %.c
 	$(CC) -g -c $(CFLAGS) -o $@ $< 
 
 clean:
-	rm -f ofcp.o ofcp
+	rm -f smbcp.o smbcp
 
 install:
 	install -d $(DESTDIR)/$(BINDIR)
-	install -m 755 ofcp $(DESTDIR)/$(BINDIR)
+	install -m 755 smbcp $(DESTDIR)/$(BINDIR)

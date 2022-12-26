@@ -741,6 +741,75 @@ static OFC_DWORD copy_async(OFC_CTCHAR *rfilename, OFC_CTCHAR *wfilename)
   return (dwLastError);
 }
 
+static OFC_DWORD copy_sync(OFC_CTCHAR *rfilename, OFC_CTCHAR *wfilename)
+{
+  struct copy_state *copy_state;
+  OFC_DWORD dwLastError;
+  OFC_HANDLE read_file;
+  OFC_HANDLE write_file;
+  OFC_CHAR buffer[BUFFER_SIZE];
+  OFC_DWORD dwLen;
+  OFC_BOOL ret;
+
+  dwLastError = OFC_ERROR_SUCCESS;
+
+  read_file = OFC_HANDLE_NULL;
+  write_file = OFC_HANDLE_NULL;
+  /*
+   * Open up our read file.  This file should
+   * exist
+   */
+  read_file = OfcCreateFile(rfilename,
+			    OFC_GENERIC_READ,
+			    OFC_FILE_SHARE_READ,
+			    OFC_NULL,
+			    OFC_OPEN_EXISTING,
+			    OFC_FILE_ATTRIBUTE_NORMAL,
+			    OFC_HANDLE_NULL);
+
+  if (read_file == OFC_INVALID_HANDLE_VALUE)
+    {
+      dwLastError = OfcGetLastError();
+    }
+  else
+    {
+      /*
+       * Open up our write file.  If it exists, it will be deleted
+       */
+      write_file = OfcCreateFile(wfilename,
+				 OFC_GENERIC_WRITE,
+				 0,
+				 OFC_NULL,
+				 OFC_CREATE_ALWAYS,
+				 OFC_FILE_ATTRIBUTE_NORMAL,
+				 OFC_HANDLE_NULL);
+
+      if (write_file == OFC_INVALID_HANDLE_VALUE)
+	{
+	  dwLastError = OfcGetLastError();
+	}
+      else
+	{
+	  while ((ret = OfcReadFile(read_file, buffer, BUFFER_SIZE,
+				    &dwLen, OFC_NULL)) == OFC_TRUE)
+	    {
+	      ret = OfcWriteFile(write_file, buffer, dwLen,
+				 &dwLen, OFC_NULL);
+	    }
+	  if (ret == OFC_FALSE)
+	    {
+	      if (OfcGetLastError() != OFC_ERROR_HANDLE_EOF)
+		dwLastError = OfcGetLastError();
+	    }
+	    
+	  OfcCloseHandle(write_file);
+	}
+      OfcCloseHandle(read_file);
+    }
+
+  return (dwLastError);
+}
+
 int main (int argc, char **argp)
 {
   OFC_TCHAR *rfilename;
@@ -749,29 +818,42 @@ int main (int argc, char **argp)
   mbstate_t ps;
   OFC_DWORD ret;
   const char *cursor;
+  int async = 0;
+  int argidx;
 
-  if (argc != 3)
+  if (argc < 3)
     {
-      printf ("Usage: ofcp <source> <destination>\n");
+      printf ("Usage: smbcp [-a] <source> <destination>\n");
       exit (1);
     }
 
+  argidx = 1;
+  if (strcmp(argp[argidx], "-a") == 0)
+    {
+      async = 1;
+      argidx++;
+    }
+
   memset(&ps, 0, sizeof(ps));
-  len = strlen(argp[1]) + 1;
+  len = strlen(argp[argidx]) + 1;
   rfilename = malloc(sizeof(wchar_t) * len);
-  cursor = argp[1];
+  cursor = argp[argidx];
   mbsrtowcs(rfilename, &cursor, len, &ps);
 
   memset(&ps, 0, sizeof(ps));
-  len = strlen(argp[2]) + 1;
+  len = strlen(argp[argidx+1]) + 1;
   wfilename = malloc(sizeof(wchar_t) * len);
-  cursor = argp[2];
+  cursor = argp[argidx+1];
   mbsrtowcs(wfilename, &cursor, len, &ps);
 
-  printf("Copying %s to %s: ", argp[1], argp[2]);
+  printf("Copying %s to %s: ", argp[argidx], argp[argidx+1]);
   fflush(stdout);
 
-  ret = copy_async(rfilename, wfilename);
+  if (async)
+    ret = copy_async(rfilename, wfilename);
+  else
+    ret = copy_sync(rfilename, wfilename);
+  
   if (ret == OFC_ERROR_SUCCESS)
     {
       printf("[ok]\n");
