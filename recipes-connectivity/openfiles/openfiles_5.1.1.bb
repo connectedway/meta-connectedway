@@ -20,7 +20,7 @@ RDEPENDS_${PN} = " \
     mbedtls \
 "
 
-PACKAGES =+ "openfiles-dev openfiles-test openfiles-dbg"
+PACKAGES = "${PN} ${PN}-dev ${PN}-test ${PN}-dbg"
 
 inherit cmake
 
@@ -66,3 +66,8 @@ FILES_${PN}-dev = " \
     /usr/include/openfiles \
 "
 
+FILES_${PN}-dbg = " \
+    /usr/src \
+    /usr/bin/openfiles/.debug \
+    /usr/lib/openfiles/.debug \
+"

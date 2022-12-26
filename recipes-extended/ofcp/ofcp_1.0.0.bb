@@ -17,5 +17,5 @@ do_install () {
 }
 
 FILES_${PN} = " \
-    ${bindir}/openfiles/ofcp
+    ${bindir}/openfiles/ofcp \
 "    
