@@ -1,10 +1,10 @@
 all: ofcp
 
 ofcp: ofcp.o
-	$(CC) $(LDFLAGS) -o $@ $< -lof_smb_shared -lof_core_shared -lkrb5 -lgssapi_krb5 
+	$(CC) $(LDFLAGS) -o $@ $< -lof_smb_shared -lof_core_shared -lmbedtls -lkrb5 -lgssapi_krb5 
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -g -c $(CFLAGS) -o $@ $< 
 
 clean:
 	rm -f ofcp.o ofcp

@@ -25,7 +25,7 @@ PACKAGES = "${PN} ${PN}-dev ${PN}-test ${PN}-dbg ${PN}-staticdev"
 inherit cmake
 
 EXTRA_OECMAKE = " \
-    -DOPENFILE_CONFIG=./configs/linux-smbfs \
+    -DOPENFILE_CONFIG=./configs/yocto-smbfs \
     -DCMAKE_MAKE_PROGRAM=${TMPDIR}/hosttools/make \
     -DMBEDTLS_ROOT_DIR=${STAGING_DIR_TARGET}/usr \
 "

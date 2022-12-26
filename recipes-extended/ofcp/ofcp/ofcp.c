@@ -127,6 +127,7 @@ static ASYNC_RESULT AsyncRead(OFC_HANDLE wait_set,
           ofc_waitset_add(wait_set, (OFC_HANDLE) buffer,
                           buffer->readOverlapped);
           result = ASYNC_RESULT_PENDING;
+	  *dwLastError = OFC_ERROR_SUCCESS;
         }
       else
         {
@@ -275,6 +276,7 @@ static ASYNC_RESULT AsyncWrite(OFC_HANDLE wait_set, OFC_HANDLE write_file,
       *dwLastError = OfcGetLastError();
       if (*dwLastError == OFC_ERROR_IO_PENDING)
         {
+	  *dwLastError = OFC_ERROR_SUCCESS;
           result = ASYNC_RESULT_PENDING;
           ofc_waitset_add(wait_set,
                           (OFC_HANDLE) buffer, buffer->writeOverlapped);
@@ -449,6 +451,7 @@ static OFC_DWORD prime_buffers (struct copy_state *copy_state)
        * avoid races
        */
       copy_state->pending++;
+      buffer->offset = copy_state->offset;
       result = AsyncRead(copy_state->wait_set, copy_state->read_file,
                          buffer, dwLen, &dwLastError);
 
@@ -745,6 +748,7 @@ int main (int argc, char **argp)
   size_t len;
   mbstate_t ps;
   OFC_DWORD ret;
+  const char *cursor;
 
   if (argc != 3)
     {
@@ -753,14 +757,16 @@ int main (int argc, char **argp)
     }
 
   memset(&ps, 0, sizeof(ps));
-  len = strlen(argp[1]);
-  rfilename = malloc(sizeof(wchar_t) * (len+1));
-  mbrtowc(rfilename, argp[1], len, &ps);
+  len = strlen(argp[1]) + 1;
+  rfilename = malloc(sizeof(wchar_t) * len);
+  cursor = argp[1];
+  mbsrtowcs(rfilename, &cursor, len, &ps);
 
   memset(&ps, 0, sizeof(ps));
-  len = strlen(argp[2]);
-  wfilename = malloc(sizeof(wchar_t) * (len+1));
-  mbrtowc(wfilename, argp[2], len, &ps);
+  len = strlen(argp[2]) + 1;
+  wfilename = malloc(sizeof(wchar_t) * len);
+  cursor = argp[2];
+  mbsrtowcs(wfilename, &cursor, len, &ps);
 
   printf("Copying %s to %s: ", argp[1], argp[2]);
   fflush(stdout);
@@ -781,3 +787,8 @@ int main (int argc, char **argp)
 }
 
   
+OFC_VOID of_smb_load(OFC_VOID);
+void dummy(void)
+{
+  of_smb_load();
+}
