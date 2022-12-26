@@ -20,6 +20,8 @@ RDEPENDS_${PN} = " \
     mbedtls \
 "
 
+PACKAGES =+ "openfiles-dev openfiles-test openfiles-dbg"
+
 inherit cmake
 
 EXTRA_OECMAKE = " \
@@ -33,29 +35,34 @@ do_install_append() {
    install -m 0644 ${S}/configs/linux_debug.xml ${D}/${sysconfdir}/openfiles.xml
 }
 
-PACKAGES =+ ""
-
-PACKAGESPLITFUNCS_prepend = ""
-
-RDEPENDS_${PN} += ""
-
 FILES_${PN} = " \
-    /usr/bin \
-    /usr/lib \
+    /usr/lib/openfiles/libof_smb_shared.so.1.0.1 \
+    /usr/lib/openfiles/libof_smb_shared.so.1 \
+    /usr/lib/openfiles/libof_smb_shared.so \
+    /usr/lib/openfiles/libof_core_shared.so.1.0.1 \
+    /usr/lib/openfiles/libof_core_shared.so.1 \    
+    /usr/lib/openfiles/libof_core_shared.so \
     ${sysconfdir}/openfiles.xml \
 "
 
-FILES_${PN}-base = ""
+FILES_${PN}-test = " \
+    /usr/bin/openfiles/test_fs_smb \
+    /usr/bin/openfiles/test_timer \
+    /usr/bin/openfiles/test_iovec \
+    /usr/bin/openfiles/test_perf \
+    /usr/bin/openfiles/test_fs_linux \
+    /usr/bin/openfiles/test_waitq \
+    /usr/bin/openfiles/test_thread \
+    /usr/bin/openfiles/test_path \
+    /usr/bin/openfiles/test_event \
+    /usr/bin/openfiles/test_dg \
+    /usr/bin/openfiles/test_stream \
+    /usr/bin/openfiles/test_all \
+"
 
-FILES_${PN}-ctdb-tests = ""
-
-FILES_${BPN}-common = ""
-
-FILES_${PN} += ""
-
-FILES_${PN}-testsuite = ""
-
-FILES_registry-tools = ""
-
-FILES_smbclient = ""
+FILES_${PN}-dev = " \
+    /usr/lib/openfiles/libof_core_static.a \
+    /usr/lib/openfiles/libof_smb_static.a \
+    /usr/include/openfiles \
+"
 
