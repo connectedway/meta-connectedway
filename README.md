@@ -260,6 +260,7 @@ IMAGE_INSTALL_append = " \
     openfiles-test \
     smbcp \
 "
+```
 
 ## Add Layers to Yocto's build environment
 
