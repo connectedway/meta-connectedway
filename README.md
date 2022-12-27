@@ -197,6 +197,7 @@ IMAGE_INSTALL_append = " \
     openfiles-test \
     smbcp \
 "
+```
 
 ## Preparing Openfiles on a hardknott distribution
 
