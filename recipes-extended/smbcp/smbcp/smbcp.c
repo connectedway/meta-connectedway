@@ -13,9 +13,6 @@
 #include <ofc/waitset.h>
 #include <ofc/queue.h>
 
-/* also must export ofc/core.h */
-/* also must export ofc/fstype.h */
-
 /*
  * Buffering definitions.  We test using overlapped asynchronous I/O.  
  */
