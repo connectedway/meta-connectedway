@@ -40,7 +40,6 @@ EXTRA_OECMAKE = " \
     -DUSE_SHARED_MBEDTLS_LIBRARY=on \
     -DLIB_INSTALL_DIR=${baselib} \
     -DENABLE_TESTING=off \
-    -DCMAKE_MAKE_PROGRAM=${TMPDIR}/hosttools/make \
 "
 
 inherit cmake
