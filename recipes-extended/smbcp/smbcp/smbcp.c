@@ -851,6 +851,9 @@ int main (int argc, char **argp)
   else
     ret = copy_sync(rfilename, wfilename);
   
+  free(rfilename);
+  free(wfilename);
+
   if (ret == OFC_ERROR_SUCCESS)
     {
       printf("[ok]\n");

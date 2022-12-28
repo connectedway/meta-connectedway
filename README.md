@@ -345,14 +345,92 @@ Openfiles and openfile artificts will be installed in the following locations:
 NOTE: The /usr/bin/openfiles/smbcp binary is installed by the smbcp package
 NOTE: The /usr/bin/openfiles/test_* are installed by the openfiles-test package
 
-NOTE: To run test_fs_linux, you must first do:
+NOTE: the test_* applications are designed as continuous integration (CI)
+applications.  As such they are statically linked and configured statically
+during the build.  The static configuration is fine for CI deployment but
+not really appropriate in a deployed system.  This becomes an issue with
+the test_fs_linux and test_fs_smb applications.  The path to use for the
+test is statically configured during the build.  For test_fs_linux it is
+configured with `/tmp/openfiles`.  For test_fs_smb it is configured with
+`//rschmitt:happy@192.168.1.206:445/spiritcloud/`.  The static configuration
+for test_fs_linux may be fine for running in a non CI environment but
+obviously the test_fs_smb configuration will be inappropriate in a non-ci
+environment.
+
+Fortunately for both, the default test location can be overridden in the
+runtime configuration file which is installed by yocto in `/etc/openfiles.xml`.
+If this file hasn't been modified previously, there will be a section in the
+file that appears as:
 
 ```
-$ mkdir -p /tmp/openfiles/tmp
+  <drives></drives>
 ```
 
-NOTE: segmentation fault on exit of test applications
-NOTE: segmentation fault on test_fs_smb
+Simply change this to:
+
+```
+  <drives>
+    <map>
+      <drive>test</drive>
+      <description>directory for test_fs_linux or test_fs_smb</description>
+      <path>PATH_TO_DIR</path>
+    </map>
+  </drives>
+```
+
+Where PATH_TO_DIR is the path to the temporary directory to use.  Both
+test_fs_linux and test_fs_smb will use the same map and the path can specify
+either a local or remote file.  A file specification is of the form:
+
+```
+[//username:password:domain@server/share/]path.../file
+```
+
+Where the presence of a leading `//` signifies a remote location.  The
+absence of a leading `//` signifies a local location.  So in the case of
+test_fs_linux, we may want the path element to be:
+
+```
+      <path>/tmp/openfiles</path>
+```
+
+and for test_fs_smb, we may want the path element to be:
+
+```
+      <path>//username:password@server/share/openfiles</path>
+```
+
+Replace `username`, `password`, `server`, and `share` with values appropriate
+for you network topology.
+
+Note that both test_fs_linux and test_fs_smb will create the directory if
+it doesn't exist but will only create one level.  In other words, if the
+parent directory doesn't exist, the test will fail.
+
+For those curious, test_fs_linux and test_fs_smb are nearly identical
+programs.  The main difference between the two is in the way they are
+linked.  test_fs_smb will link with the smb support while test_fs_linux will
+not.  test_fs_linux can only be run with local paths.  test_fs_smb can be
+run with either. Therefore, running test_fs_smb with a local file will
+result in the the same test as teset_fs_linux.  Running test_fs_linux with a
+remote file will result in a failure.
+
+```
+$ ./build-yocto-smbfs/of_core/test/test_fs_linux
+1502715539 OpenFiles (main) 5.0 1
+1502715539 Loading /etc/openfiles.xml
+1502715539 Device Name: localhost
+Unity test run 1 of 1
+1502715539 Starting File Test with //rschmitt:happy@192.168.1.206/spiritcloud/openfiles
+
+1502716543 Failed to Validate Destination //rschmitt:happy@192.168.1.206/spiritcloud/openfiles, Not Supported(50)
+.
+
+-----------------------
+1 Tests 0 Failures 0 Ignored 
+OK
+Total Allocated Memory 0, Max Allocated Memory 8767
+```
 
 # smbcp Example Application
 
@@ -361,6 +439,7 @@ Open Files supports numerous deployment scenarios:
 - dynamically linked applications
 - statically linked applications
 - JNI based java applications
+- FUSE handlers with external applications
 
 The test_* applications are all statically linked applications.  The smbcp
 executable is a dynamically linked application.  The application itself
