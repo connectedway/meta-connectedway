@@ -342,8 +342,8 @@ Openfiles and openfile artificts will be installed in the following locations:
 - /usr/lib/libof_core_shared.so.1*: The openfiles framework
 - /usr/lib/libof_smb_shared.so.1*: The openfiles smb support
 
-NOTE: The /usr/bin/openfiles/smbcp binary is installed by the smbcp package
-NOTE: The /usr/bin/openfiles/test_* are installed by the openfiles-test package
+The /usr/bin/openfiles/smbcp binary is installed by the smbcp package.
+The /usr/bin/openfiles/test_* are installed by the openfiles-test package
 
 NOTE: the test_* applications are designed as continuous integration (CI)
 applications.  As such they are statically linked and configured statically
@@ -431,6 +431,12 @@ Unity test run 1 of 1
 OK
 Total Allocated Memory 0, Max Allocated Memory 8767
 ```
+
+At the end of the execution of all tests, heap statistics will be printed.
+These statistics can help identify memory leaks in the framework.  When
+running test_fs_smb, you will likely see that there is memory allocated at
+exit.  This is because the test does not currently shut down the smb client
+prior to exiting.  
 
 # smbcp Example Application
 
