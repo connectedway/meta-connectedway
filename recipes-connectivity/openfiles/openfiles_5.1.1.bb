@@ -11,18 +11,18 @@ SRC_URI = "gitsm://github.com/connectedway/openfiles.git;protocol=https;branch=m
 SRCREV = "${AUTOREV}"
 
 OF_TYPE ?= "base"
-OVERRIDES:append = ":${OF_TYPE}"
+OVERRIDES_append = ":${OF_TYPE}"
 
 DEPENDS = " \
     make-native \
 "
 
-DEPENDS:append:smb = " \
+DEPENDS_append_smb = " \
     krb5 \
     mbedtls \
 "
 
-RDEPENDS_${PN}:smb = " \
+RDEPENDS_${PN}_smb = " \
     krb5 \
     mbedtls \
 "
@@ -37,15 +37,15 @@ EXTRA_OECMAKE = " \
     -DMBEDTLS_ROOT_DIR=${STAGING_DIR_TARGET}/usr \
 "
 
-EXTRA_OECMAKE:append:smb = " \
+EXTRA_OECMAKE_append_smb = " \
     -DOPENFILE_CONFIG=./configs/yocto-smbfs \
 "
 
-EXTRA_OECMAKE:append:base = " \
+EXTRA_OECMAKE_append_base = " \
     -DOPENFILE_CONFIG=./configs/linux \
 "
 
-do_install:append() {
+do_install_append() {
    install -d ${D}/${sysconfdir}		    
    install -m 0644 ${S}/configs/linux_debug.xml ${D}/${sysconfdir}/openfiles.xml
 }
@@ -56,7 +56,7 @@ FILES_${PN} = " \
     ${sysconfdir}/openfiles.xml \
 "
 
-FILES_${PN}:append:smb = " \
+FILES_${PN}_append_smb = " \
     /usr/lib/libof_smb_shared.so.1.0.1 \
     /usr/lib/libof_smb_shared.so.1 \
 "
@@ -76,7 +76,7 @@ FILES_${PN}-test = " \
     /usr/bin/openfiles/test_all \
 "
 
-FILES_${PN}-test:append:smb = " \
+FILES_${PN}-test_append_smb = " \
     /usr/bin/openfiles/test_fs_smb \
 "
 
@@ -85,7 +85,7 @@ FILES_${PN}-dev = " \
     /usr/include/ofc \
 "
 
-FILES_${PN}-dev:append:smb = " \
+FILES_${PN}-dev_append_smb = " \
     /usr/lib/libof_smb_shared.so \
 "
 
@@ -93,7 +93,7 @@ FILES_${PN}-staticdev = " \
     /usr/lib/libof_core_static.a \
 "
 
-FILES_${PN}-staticdev:append:smb = " \
+FILES_${PN}-staticdev_append_smb = " \
     /usr/lib/libof_smb_static.a \
 "
 

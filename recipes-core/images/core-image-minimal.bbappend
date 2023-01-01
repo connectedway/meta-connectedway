@@ -1,11 +1,11 @@
 
-OVERRIDES:append = ":${OF_TYPE}"
+OVERRIDES_append = ":${OF_TYPE}"
 
-IMAGE_INSTALL:append = " \
+IMAGE_INSTALL_append = " \
     openfiles \
     openfiles-test \
 "
 
-IMAGE_INSTALL:append:smb = " \
+IMAGE_INSTALL_append_smb = " \
     smbcp \
 "
