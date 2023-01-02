@@ -6,11 +6,11 @@ BBPATH = "${TOPDIR}"
 BBFILES ?= ""
 
 BBLAYERS ?= " \
-  ##OEROOT##/meta \
-  ##OEROOT##/meta-poky \
-  ##OEROOT##/meta-yocto-bsp \
-  ##OEROOT##/meta-openembedded/meta-oe \
-  ##OEROOT##/meta-openembedded/meta-networking \
-  ##OEROOT##/meta-openembedded/meta-python \
-  ##OEROOT##/meta-connectedway \
+  ##OEROOT##/layers/poky/meta \
+  ##OEROOT##/layers/poky/meta-poky \
+  ##OEROOT##/layers/poky/meta-yocto-bsp \
+  ##OEROOT##/layers/meta-openembedded/meta-oe \
+  ##OEROOT##/layers/meta-openembedded/meta-networking \
+  ##OEROOT##/layers/meta-openembedded/meta-python \
+  ##OEROOT##/layers/meta-connectedway \
   "
