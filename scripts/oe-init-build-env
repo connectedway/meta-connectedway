@@ -41,6 +41,8 @@ if [ -z "$OEROOT" ]; then
 fi
 unset THIS_SCRIPT
 
+export PATH=$OEROOT/layers/poky/scripts:$PATH
+
 export OEROOT
 . $OEROOT/layers/poky/scripts/oe-buildenv-internal &&
     TEMPLATECONF="$OEROOT/layers/meta-connectedway/conf" $OEROOT/layers/poky/scripts/oe-setup-builddir || {
