@@ -1,0 +1,11 @@
+Supported target is:
+    core-image-minimal
+
+Other targets expected to run:
+    core-image-sato
+    meta-toolchain
+    meta-ide-support
+
+You can also run generated qemu images with a command like
+'../meta-connectedway/scripts/runqemu.openfiles`
+
