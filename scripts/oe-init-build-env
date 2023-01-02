@@ -49,7 +49,7 @@ unset THIS_SCRIPT
 
 export OEROOT
 . $OEROOT/layers/poky/scripts/oe-buildenv-internal &&
-    TEMPLATECONF="$OEROOT/layers/meta-connectedwy/scripts/conf" $OEROOT/scripts/oe-setup-builddir || {
+    TEMPLATECONF="$OEROOT/layers/meta-connectedwy/scripts/conf" $OEROOT/poky/scripts/oe-setup-builddir || {
     unset OEROOT
     return 1
 }
