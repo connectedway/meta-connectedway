@@ -239,12 +239,12 @@ CONF_VERSION = "1"
 INHERIT_remove = "uninative"
 
 # Use this if you're building for the 4.9 kernel
-#PREFERRED_VERSION_linux-yocto = "4.9%"
-#TMPDIR = "${TOPDIR}/tmp-pyro"
+PREFERRED_VERSION_linux-yocto = "4.9%"
+TMPDIR = "${TOPDIR}/tmp-pyro"
 
 # Use this if you're building for the 5.10 kernel
-PREFERRED_VERSION_linux-yocto = "5.10%"
-TMPDIR = "${TOPDIR}/tmp-hardknott"
+#PREFERRED_VERSION_linux-yocto = "5.10%"
+#TMPDIR = "${TOPDIR}/tmp-hardknott"
 
 # Uncomment this if you are building OpenFiles with SMB
 # OF_TYPE = "smb"
