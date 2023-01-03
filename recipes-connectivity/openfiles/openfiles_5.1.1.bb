@@ -6,8 +6,7 @@ LIC_FILES_CHKSUM = "file://${S}/NOTICE;md5=c902fa3f368adf19a134813000affbe5 \
                     file://${COREBASE}/meta/files/common-licenses/CC-BY-ND-3.0;md5=009338acda935b3c3a3255af957e6c14 \
                     file://${COREBASE}/meta/files/common-licenses/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28 "
 
-# SRC_URI = "gitsm://git@github.com/connectedway/openfiles.git;protocol=ssh;branch=main"
-SRC_URI = "gitsm://github.com/connectedway/openfiles.git;protocol=https;branch=main"
+SRC_URI = "git://github.com/connectedway/openfiles.git;protocol=https;branch=main"
 SRCREV = "${AUTOREV}"
 
 OF_TYPE ?= "base"
@@ -45,7 +44,38 @@ EXTRA_OECMAKE_append_base = " \
     -DOPENFILE_CONFIG=./configs/linux \
 "
 
-do_install_append() {
+python do_unpack_append() {
+
+    from bb.fetch2 import runfetchcmd
+
+    s=d.getVar("S")
+    basecmd = d.getVar("FETCHCMD_git") or "git -c core.fsyncobjectfiles=0"
+    runfetchcmd(f"{basecmd} submodule init", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_core", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_core_cheap", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_core_binheap", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_core_linux", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_core_fs_bookmarks", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_core_fs_linux", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_core_fs_pipe", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update Unity", d, quiet=True, workdir=s)
+}  
+
+python do_unpack_append_smb() {
+    from bb.fetch2 import runfetchcmd
+
+    s=d.getVar("S")
+    runfetchcmd(f"{basecmd} submodule init", d, quiet=True, workdir=s)
+    basecmd = d.getVar("FETCHCMD_git") or "git -c core.fsyncobjectfiles=0"
+    runfetchcmd(f"{basecmd} submodule update of_smb", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_smb_fs", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_smb_client", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_smb_browser", d, quiet=True, workdir=s)
+    runfetchcmd(f"{basecmd} submodule update of_security", d, quiet=True, workdir=s)
+}  
+
+do_install:append() {
+>>>>>>> 9ccd212... support variant submodules (aka do our own openfiles fetch)
    install -d ${D}/${sysconfdir}		    
    install -m 0644 ${S}/configs/linux_debug.xml ${D}/${sysconfdir}/openfiles.xml
 }
