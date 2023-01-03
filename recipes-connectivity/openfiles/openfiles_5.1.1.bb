@@ -74,8 +74,7 @@ python do_unpack_append_smb() {
     runfetchcmd(f"{basecmd} submodule update of_security", d, quiet=True, workdir=s)
 }  
 
-do_install:append() {
->>>>>>> 9ccd212... support variant submodules (aka do our own openfiles fetch)
+do_install_append() {
    install -d ${D}/${sysconfdir}		    
    install -m 0644 ${S}/configs/linux_debug.xml ${D}/${sysconfdir}/openfiles.xml
 }
