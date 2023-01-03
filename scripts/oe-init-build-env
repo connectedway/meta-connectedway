@@ -45,7 +45,7 @@ export PATH=$OEROOT/layers/poky/scripts:$PATH
 
 export OEROOT
 . $OEROOT/layers/poky/scripts/oe-buildenv-internal &&
-    TEMPLATECONF="$OEROOT/layers/meta-connectedway/conf" $OEROOT/layers/poky/scripts/oe-setup-builddir || {
+    TEMPLATECONF="$OEROOT/.templateconf" $OEROOT/layers/poky/scripts/oe-setup-builddir || {
     unset OEROOT
     return 1
 }
