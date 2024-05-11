@@ -5,17 +5,14 @@ meta-connectedway
 
 This layer provides metadata that extends the base
 poky distroy and openembedded layer with support for Connected Way's
-Open Fiels.
+Open Files.
 
-This layer is qualified against the pyro and hardknott releases of Yocto.
+This layer is qualified against the pyro, dunfell, and hardknott
+releases of Yocto.
 
 # Contents
 
-mbedtls recipe for v3.2.1.  Openfiles depends on v3.2.1 for CCM support.
-The default version of mbedtls supported by hardknott is v2.25.0.  Therefore
-we provide our own recipe.
-
-openfiles recipe for v5.1.1.  This will build openfiles for a yocto distro.
+openfiles recipe for v5.3.0.  This will build openfiles for a yocto distro.
 The following packages can be deployed:
 - openfiles: Deploys libof_smb and libof_core shared libraries along with
 /etc/openfiles.xml
@@ -26,11 +23,11 @@ recipes (not currently used)
 - openfiles-dbg: Deploys debug sources, binaries, and libraries
 
 cmake recipe for version 3.22.3:  Openfiles depends on cmake version > 3.20.
-the default cmake provided by hardknott is 3.19.
+the default cmake provided by hardknott and dunfell is 3.19.
 
 smbcp recipe:  This is an example application that utilizes the openfiles
 smb v2/v3 client.  It depends on the the openfiles package as well as krb5
-and mbedtls.  It is intended that this package will provide an example of
+and openssl.  It is intended that this package will provide an example of
 how embedded linux applications can utilize openfiles to access remote
 directories using SMBv2/v3.
 
@@ -43,17 +40,17 @@ Configuration files in conf that will setup the build environment.
 
 There are two supported yocto distributions of poky:
 - pyro
+- dunfell
 - hardknott
 
 Others are likely supported but not currently qualified.
 
 If you are checking out a poky branch based on the pyro release and
-not using the repo tool (for
-example, pyro-20.04 in the connectedway poky fork), you should checkout
-the pyro branch of meta-connectedway.  If you are checking out a poky branch
-based on the hardknott release (can be direct from git.yoctoproject.org or
-from the connectedway fork) you should set the meta-connectedway branch to
-hardknott.
+not using the repo tool (for example, pyro-20.04 in the connectedway
+poky fork), you should checkout the pyro branch of meta-connectedway.
+If you are checking out a poky branch based on the hardknott release
+(can be direct from git.yoctoproject.org or from the connectedway
+fork) you should set the meta-connectedway branch to hardknott.
 
 # Ubuntu 20.04 Support in Pyro
 
