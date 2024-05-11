@@ -25,11 +25,11 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 SECTION = "libdevel"
 
-SRC_URI = "git://github.com/Mbed-TLS/mbedtls.git;protocol=https"
+SRC_URI = "git://github.com/Mbed-TLS/mbedtls.git;protocol=https;branch=main;tag=v${PV}"
 
 #SRC_URI[md5sum] = "a6ed92fc377ef60f7c24d42b900e0dad"
 #SRC_URI[sha256sum] = "f5beb43e850283915e3e0f8d37495eade3bfb5beedfb61e7b8da70d4c68edb82"
-SRCREV = "869298bffeea13b205343361b7a7daf2b210e33d"
+#SRCREV = "869298bffeea13b205343361b7a7daf2b210e33d"
 
 DEPENDS = "openssl python3"
 RDEPENDS_${PN} += "libcrypto"
@@ -44,6 +44,6 @@ EXTRA_OECMAKE = " \
 
 inherit cmake
 
-do_install_append() {
+do_install:append() {
   rm -rf ${D}/usr/cmake
 }

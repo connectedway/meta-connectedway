@@ -4,7 +4,7 @@ inherit cmake bash-completion
 
 DEPENDS += "curl expat zlib libarchive xz ncurses bzip2"
 
-SRC_URI_append_class-nativesdk += " \
+SRC_URI:append:class-nativesdk = " \
     file://OEToolchainConfig.cmake \
     file://SDKToolchainConfig.cmake.template \
     file://cmake-setup.py \
@@ -45,7 +45,7 @@ EXTRA_OECMAKE=" \
     -DKWSYS_LFS_WORKS=1 \
 "
 
-do_install_append_class-nativesdk() {
+do_install:append:class-nativesdk() {
     mkdir -p ${D}${datadir}/cmake
     install -m 644 ${WORKDIR}/OEToolchainConfig.cmake ${D}${datadir}/cmake/
 
@@ -58,7 +58,7 @@ do_install_append_class-nativesdk() {
     install -m 0755 ${WORKDIR}/cmake-setup.py ${D}${SDKPATHNATIVE}/post-relocate-setup.d/
 }
 
-FILES_${PN}_append_class-nativesdk = " ${SDKPATHNATIVE}"
+FILES_${PN}:append:class-nativesdk = " ${SDKPATHNATIVE}"
 
 FILES_${PN} += "${datadir}/cmake-${CMAKE_MAJOR_VERSION} ${datadir}/cmake ${datadir}/aclocal ${datadir}/emacs ${datadir}/vim"
 FILES_${PN}-doc += "${docdir}/cmake-${CMAKE_MAJOR_VERSION}"
