@@ -52,7 +52,7 @@ EXTRA_OECMAKE:append:base = " \
     -DOPENFILE_PLATFORM=./build/linux-platform.cfg \
     -DOPENFILE_BEHAVIOR=./build/linux-behavior.cfg \
     -DOPENFILE_SIZING=./build/sizing.cfg \
-    -DOPENFILE_DEBUG=./build/nodebug.cfg \
+    -DOPENFILE_DEBUG=./build/debug.cfg \
     -DOPENFILE_SMB=./build/nosmb.cfg \
     -DOPENFILE_CIPHER=./build/openssl.cfg \
     -DOPENFILE_JNI=./build/nojni.cfg \
@@ -97,8 +97,8 @@ do_install:append() {
    install -m 0644 ${S}/configs/linux-nodebug-smbclient.xml ${D}/${sysconfdir}/openfiles.xml
    install -d ${D}/${sysconfdir}/profile.d
    install -m 0755 ${S}/scripts/openfiles_path.sh ${D}/${sysconfdir}/profile.d
-   install -m 0755 ${S}/scripts/krb5.conf ${D}/${sysconfdir}/krb5.conf
    install -d ${D}/${ROOT_HOME}
+   install -m 0755 ${S}/scripts/krb5.conf ${D}/${ROOT_HOME}/krb5.conf
    install -m 0755 ${S}/scripts/resolv.conf ${D}/${ROOT_HOME}/resolv.conf
 }
 
@@ -108,7 +108,7 @@ FILES_${PN} = " \
     ${sysconfdir}/openfiles.xml \
     ${sysconfdir}/profile.d/openfiles_path.sh \
     ${ROOT_HOME}/resolv.conf \
-    ${sysconfdir}/krb5.conf \ 
+    ${ROOT_HOME}/krb5.conf \ 
 "
 
 FILES_${PN}:append:smb = " \
