@@ -8,4 +8,5 @@ IMAGE_INSTALL:append = " \
 
 IMAGE_INSTALL:append:smb = " \
     smbcp \
+    krb5-user \
 "
