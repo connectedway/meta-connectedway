@@ -95,7 +95,12 @@ python do_unpack:append:smb() {
 
 do_install:append() {
    install -d ${D}/${sysconfdir}		    
-   install -m 0644 ${S}/configs/linux_nodebug-smbclient.xml ${D}/${sysconfdir}/openfiles.xml
+   install -m 0644 ${S}/configs/linux-nodebug-smbclient.xml ${D}/${sysconfdir}/openfiles.xml
+   install -d ${D}/${sysconfdir}/profile.d
+   install -m 0755 ${S}/scripts/openfiles_path.sh ${D}/${sysconfdir}/profile.d
+   install -d ${D}/${ROOT_HOME}
+   install -m 0755 ${S}/scripts/krb5.conf ${D}/${ROOT_HOME}/krb5.conf
+   install -m 0755 ${S}/scripts/resolv.conf ${D}/${ROOT_HOME}/resolv.conf
 }
 
 FILES:${PN} = " \
