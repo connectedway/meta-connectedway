@@ -10,7 +10,7 @@ SRC_URI = "git://github.com/connectedway/openfiles.git;protocol=https;branch=5.3
 SRCREV = "${AUTOREV}"
 
 OF_TYPE ?= "base"
-OVERRIDES:append = ":${OF_TYPE}"
+OVERRIDES:append = ":${OF_TYPE}:${OF_CONFIG}:${OF_DEBUG}"
 
 DEPENDS = " \
     make-native \
@@ -37,10 +37,7 @@ EXTRA_OECMAKE = " \
 EXTRA_OECMAKE:append:smb = " \
     -DFETCHCONTENT_FULLY_DISCONNECTED=OFF \
     -DOPENFILE_NAMING=./build/naming.cfg \
-    -DOPENFILE_PLATFORM=./build/linuxman-platform.cfg \
-    -DOPENFILE_BEHAVIOR=./build/linuxman-behavior.cfg \
     -DOPENFILE_SIZING=./build/sizing.cfg \
-    -DOPENFILE_DEBUG=./build/nodebug.cfg \
     -DOPENFILE_SMB=./build/smbclient.cfg \
     -DOPENFILE_CIPHER=./build/openssl.cfg \
     -DOPENFILE_JNI=./build/nojni.cfg \
@@ -51,14 +48,30 @@ EXTRA_OECMAKE:append:smb = " \
 EXTRA_OECMAKE:append:base = " \
     -DFETCHCONTENT_FULLY_DISCONNECTED=OFF \
     -DOPENFILE_NAMING=./build/naming.cfg \
-    -DOPENFILE_PLATFORM=./build/linuxman-platform.cfg \
-    -DOPENFILE_BEHAVIOR=./build/linuxman-behavior.cfg \
     -DOPENFILE_SIZING=./build/sizing.cfg \
-    -DOPENFILE_DEBUG=./build/nodebug.cfg \
     -DOPENFILE_SMB=./build/nosmb.cfg \
     -DOPENFILE_CIPHER=./build/openssl.cfg \
     -DOPENFILE_JNI=./build/nojni.cfg \
 "
+
+EXTRA_OECMAKE:append:smb:auto = " \
+    -DOPENFILE_PLATFORM=./build/linux-platform.cfg \
+    -DOPENFILE_BEHAVIOR=./build/linux-behavior.cfg \
+"
+
+EXTRA_OECMAKE:append:smb:manual = " \
+    -DOPENFILE_PLATFORM=./build/linuxman-platform.cfg \
+    -DOPENFILE_BEHAVIOR=./build/linuxman-behavior.cfg \
+"
+
+EXTRA_OECMAKE:append:debug = " \
+    -DOPENFILE_DEBUG=./build/debug.cfg \
+"
+
+EXTRA_OECMAKE:append:nodebug = " \
+    -DOPENFILE_DEBUG=./build/nodebug.cfg \
+"
+
 
 do_unpack[network] = "1"
 

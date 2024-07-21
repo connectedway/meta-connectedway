@@ -115,10 +115,35 @@ Update your local.conf
 $ <your editor> conf/local.conf
 ```
 
-Add the following near the end of the configuration file
+The configuration variable `OF_TYPE` signifies whether the Open File
+SMB component should be added to the package.  `OF_TYPE` can be
+`base` or `smb`.  `base` will build and deploy a base Open File product
+which has the file redirector, and the event-driven framework.  `smb`
+will inclue the SMB stack.
+
+There are two other configuration variables, `OF_CONFIG` and `OF_DEBUG`.
+OF_CONFIG can be `auto` or `manual`.  `auto` will configure the Open Files
+stack to initialize itelf on load and to configure the stack using the
+settings in the intalled `openfiles.xml` file.  Following configuration,
+the `auto` configuration ssetting will have the stack implicity startup
+the components.  `manual` will require applications to explicitly initialize
+the framework and smb components, perform it's own stack configuration,
+and to explicitly startup the stack.  Likewise, on unload, `auto` will
+implicitly deactive the stack before exist.  `manual` will expect the
+application to shutdown the framework and smb component and to deactivate
+the stack.
+
+OF_DEBUG can be `debug` or `nodebug`.  `debug` will build into the stack
+various debug features such as heap checking.  Upon unload, the stack will
+verify that there are no leaked memory chunks.
+
+In your local.conf, you should specify the settings of thees three
+package configuration variables:
 
 ```
 OF_TYPE = "smb"
+OF_CONFIG = "manual"
+OF_DEBUG = "nodebug"
 ```
 
 That's it.  Now you can begin a build.
