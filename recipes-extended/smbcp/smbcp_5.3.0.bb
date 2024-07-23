@@ -2,10 +2,9 @@ SUMMARY = "Example Copy Applications for Openfiles"
 SECTION = "console/network"
 DEPENDS = "openfiles krb5 openssl"
 HOMEPAGE = "http://www.connectedway.com/"
-LICENSE = "BSD"
+LICENSE = "CC-BY-ND-3.0 & Proprietary"
 
 S = "${WORKDIR}/git"
-LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://${S}/COPYING;md5=624d9e67e8ac41a78f6b6c2c55a83a2b"
 
 SRC_URI = "git://github.com/connectedway/smbcp.git;protocol=https;branch=5.3"
@@ -21,7 +20,7 @@ do_install () {
     oe_runmake install DESTDIR=${D} BINDIR=${bindir}/openfiles ROOT=${ROOT_HOME}
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${bindir}/openfiles/smbcp \
     ${bindir}/openfiles/smbrm \
     ${bindir}/openfiles/smbfree \

@@ -7,10 +7,14 @@ This layer provides metadata that extends the base
 poky distroy and openembedded layer with support for Connected Way's
 Open Files.
 
-This layer is qualified against the pyro, dunfell, and hardknott
+This layer is qualified against the pyro, dunfell, hardknott, and scarthgap
 releases of Yocto.
 
 # Contents
+
+mbedtls recipe for v3.2.1.  Openfiles depends on v3.2.1 for CCM support.
+The default version of mbedtls supported by hardknott is v2.25.0.  Therefore
+we provide our own recipe.
 
 openfiles recipe for v5.3.0.  This will build openfiles for a yocto distro.
 The following packages can be deployed:
@@ -23,7 +27,7 @@ recipes (not currently used)
 - openfiles-dbg: Deploys debug sources, binaries, and libraries
 
 cmake recipe for version 3.22.3:  Openfiles depends on cmake version > 3.20.
-the default cmake provided by hardknott 3.19 and dunfell is 3.16.
+he default cmake provided by hardknott 3.19 and dunfell is 3.16.
 
 smbcp recipe:  This is an example application that utilizes the openfiles
 smb v2/v3 client.  It depends on the the openfiles package as well as krb5
@@ -38,62 +42,19 @@ Configuration files in conf that will setup the build environment.
 
 # Supported Distros
 
-There are three supported yocto distributions of poky:
-
+There are four supported yocto distributions of poky:
 - pyro
-- dunfell
 - hardknott
+- dunfell
+- scarthgap
 
-Currently, we our head of integration is dunfell.  By head of integration,
+Others are likely supported but not currently qualified.
+
+Currently, we our head of integration is scarthgap.  By head of integration,
 we mean that although the other releases had been supported with
-the 5.1 release of OpenFiles, Dunfell has been integrated with 5.3.  Other
-branches likely need to be refreshed.  If other branches are required,
+the 5.3 release of OpenFiles, Scarthgap has been integrated with 5.3.  Other
+branches may need to be refreshed.  If other branches are required,
 please request support with Connected Way.
-
-# Ubuntu 20.04 Support in Pyro
-
-The changes we made to the Pyro distribution in order to support a poky build
-under Ubuntu 20.04 can be seen by running the git command:
-
-```
-git diff pyro pyro-20.04
-```
-
-Specifically, these chages are:
-- fixed a python compatibility issue in buildstats.bbclass
-- fixed compatibility issues in glib-2.0
-- fixed compatibility issues in glibc
-- fixed compatibility issues in bison
-- fixed compatibility issue in elfutils
-- fixed compatibility issue i m4
-- fixed compatibility issues with make
-- fixed compatibility issues with perl
-- fixed compatibility issues with qemu
-- fixed compatibility issues with libgpg
-
-These changes affect only the build of native tools.  They do not result in
-target system changes.  The changes are only needed for the pyro distro.
-The hardknott distro is compatible with Ubuntu 20.04.
-
-# Qemu Workaround for arm64.
-
-The qemu support for the aarch64 platform is deficient for applications that
-utilize kernel random number support (the kernel getrandom syscall).  This
-causes the linux guest to hang when initializing the random number generator.
-Openfiles utilizes mbedtls for crypto support.  mbedtls uses the getrandom
-syscall and so would end up hanging.  Patching qemu to support the getrandom
-syscall was non-trivial.  We worked around this issue by overriding the
-default entropy initialization of mbedtls within the openfiles security layer.
-This will only affect targets named qemuarm64.  
-
-# MbedTls
-
-OpenFiles has been integrate with mbedtls version 3.2.1.  Dunfell has
-support or mbedtls 2.16.6.  The meta-connectedway layer provides support
-for mbedtls 3.2.1.  The default cipher stack for OpenFiles is openssl
-although we support both mbedtls and gnutls support as well.  Dunfell is
-integrated with openssl 1.1.1.  We support that as well as openssl 3.3.1
-which is integrated in later versions of Yocto.
 
 # OpenEmbedded
 
@@ -123,7 +84,7 @@ Set the branches
 ```
 $ cd meta-connectedway
 $ git checkout dunfell
-$
+
 $ cd ../meta-openembedded
 $ git checkout dunfell
 ```
@@ -132,7 +93,7 @@ Set up a build environment
 
 ```
 $ cd ..
-$ source oe-init-build-env
+$ source oe-init-build-env build-dunfell
 ```
 
 Update bblayers
@@ -157,10 +118,35 @@ Update your local.conf
 $ <your editor> conf/local.conf
 ```
 
-Add the following near the end of the configuration file
+The configuration variable `OF_TYPE` signifies whether the Open File
+SMB component should be added to the package.  `OF_TYPE` can be
+`base` or `smb`.  `base` will build and deploy a base Open File product
+which has the file redirector, and the event-driven framework.  `smb`
+will inclue the SMB stack.
+
+There are two other configuration variables, `OF_CONFIG` and `OF_DEBUG`.
+OF_CONFIG can be `auto` or `manual`.  `auto` will configure the Open Files
+stack to initialize itelf on load and to configure the stack using the
+settings in the intalled `openfiles.xml` file.  Following configuration,
+the `auto` configuration ssetting will have the stack implicity startup
+the components.  `manual` will require applications to explicitly initialize
+the framework and smb components, perform it's own stack configuration,
+and to explicitly startup the stack.  Likewise, on unload, `auto` will
+implicitly deactive the stack before exist.  `manual` will expect the
+application to shutdown the framework and smb component and to deactivate
+the stack.
+
+OF_DEBUG can be `debug` or `nodebug`.  `debug` will build into the stack
+various debug features such as heap checking.  Upon unload, the stack will
+verify that there are no leaked memory chunks.
+
+In your local.conf, you should specify the settings of thees three
+package configuration variables:
 
 ```
 OF_TYPE = "smb"
+OF_CONFIG = "manual"
+OF_DEBUG = "nodebug"
 ```
 
 That's it.  Now you can begin a build.
@@ -177,15 +163,18 @@ local.conf
 ```
 IMAGE_INSTALL:append = " \
     openfiles \
-    smbcp \
+    openfiles-test \
 "
 ```
 
 If you have not integrated with kerberos in your own build and
-you wish to have access to kinit, you will need to also include:
+you wish to have access to kinit, you will need to also include
+krb5-user.  You may also wish to include the Connected Way smbcp
+utility.:
 
 ```
-IMAGE_INSTALL:append = " \
+IMAGE_INSTALL:append:smb = " \
+    smbcp \
     krb5-user \
 "
 ```
@@ -210,7 +199,6 @@ the following:
 $ cp /home/root/krb5.conf /etc/krb5.conf
 $ cp /home/root/resolv.conf /etc/resolv.conf
 ```
-
 # Maintenance
 
 Please see the MAINTAINERS file for information on contacting the

@@ -10,7 +10,7 @@ SRC_URI = "git://github.com/connectedway/openfiles.git;protocol=https;branch=5.3
 SRCREV = "${AUTOREV}"
 
 OF_TYPE ?= "base"
-OVERRIDES:append = ":${OF_TYPE}"
+OVERRIDES:append = ":${OF_TYPE}:${OF_CONFIG}:${OF_DEBUG}"
 
 DEPENDS = " \
     make-native \
@@ -35,11 +35,9 @@ EXTRA_OECMAKE = " \
 "
 
 EXTRA_OECMAKE:append:smb = " \
+    -DFETCHCONTENT_FULLY_DISCONNECTED=OFF \
     -DOPENFILE_NAMING=./build/naming.cfg \
-    -DOPENFILE_PLATFORM=./build/linux-platform.cfg \
-    -DOPENFILE_BEHAVIOR=./build/linux-behavior.cfg \
     -DOPENFILE_SIZING=./build/sizing.cfg \
-    -DOPENFILE_DEBUG=./build/debug.cfg \
     -DOPENFILE_SMB=./build/smbclient.cfg \
     -DOPENFILE_CIPHER=./build/openssl.cfg \
     -DOPENFILE_JNI=./build/nojni.cfg \
@@ -48,18 +46,34 @@ EXTRA_OECMAKE:append:smb = " \
 "
 
 EXTRA_OECMAKE:append:base = " \
+    -DFETCHCONTENT_FULLY_DISCONNECTED=OFF \
     -DOPENFILE_NAMING=./build/naming.cfg \
-    -DOPENFILE_PLATFORM=./build/linux-platform.cfg \
-    -DOPENFILE_BEHAVIOR=./build/linux-behavior.cfg \
     -DOPENFILE_SIZING=./build/sizing.cfg \
-    -DOPENFILE_DEBUG=./build/debug.cfg \
     -DOPENFILE_SMB=./build/nosmb.cfg \
     -DOPENFILE_CIPHER=./build/openssl.cfg \
     -DOPENFILE_JNI=./build/nojni.cfg \
 "
 
+EXTRA_OECMAKE:append:smb:auto = " \
+    -DOPENFILE_PLATFORM=./build/linux-platform.cfg \
+    -DOPENFILE_BEHAVIOR=./build/linux-behavior.cfg \
+"
+
+EXTRA_OECMAKE:append:smb:manual = " \
+    -DOPENFILE_PLATFORM=./build/linuxman-platform.cfg \
+    -DOPENFILE_BEHAVIOR=./build/linuxman-behavior.cfg \
+"
+
+EXTRA_OECMAKE:append:debug = " \
+    -DOPENFILE_DEBUG=./build/debug.cfg \
+"
+
+EXTRA_OECMAKE:append:nodebug = " \
+    -DOPENFILE_DEBUG=./build/nodebug.cfg \
+"
+
+
 do_unpack[network] = "1"
-do_configure[network] = "1"
 
 python do_unpack:append() {
 
@@ -93,7 +107,7 @@ python do_unpack:append:smb() {
 }  
 
 do_install:append() {
-   install -d ${D}/${sysconfdir}
+   install -d ${D}/${sysconfdir}		    
    install -m 0644 ${S}/configs/linux-nodebug-smbclient.xml ${D}/${sysconfdir}/openfiles.xml
    install -d ${D}/${sysconfdir}/profile.d
    install -m 0755 ${S}/scripts/openfiles_path.sh ${D}/${sysconfdir}/profile.d
@@ -102,23 +116,23 @@ do_install:append() {
    install -m 0755 ${S}/scripts/resolv.conf ${D}/${ROOT_HOME}/resolv.conf
 }
 
-FILES_${PN} = " \
+FILES:${PN} = " \
     /usr/lib/libof_core_shared.so.1.0.1 \
     /usr/lib/libof_core_shared.so.1 \    
     ${sysconfdir}/openfiles.xml \
     ${sysconfdir}/profile.d/openfiles_path.sh \
     ${ROOT_HOME}/resolv.conf \
-    ${ROOT_HOME}/krb5.conf \ 
+    ${ROOT_HOME}/krb5.conf \
 "
 
-FILES_${PN}:append:smb = " \
+FILES:${PN}:append:smb = " \
     /usr/lib/libof_smb_shared.so.1.0.1 \
     /usr/lib/libof_smb_shared.so.1 \
     /usr/lib/libof_netbios_shared.so.1.0.1 \
     /usr/lib/libof_netbios_shared.so.1 \
 "
 
-FILES_${PN}-test = " \
+FILES:${PN}-test = " \
     /usr/bin/openfiles/test_timer \
     /usr/bin/openfiles/test_iovec \
     /usr/bin/openfiles/test_perf \
@@ -132,32 +146,32 @@ FILES_${PN}-test = " \
     /usr/bin/openfiles/test_all \
 "
 
-FILES_${PN}-test:append:smb = " \
+FILES:${PN}-test:append:smb = " \
     /usr/bin/openfiles/test_fs_smb \
     /usr/bin/openfiles/test_name \
 "
 
-FILES_${PN}-dev = " \
+FILES:${PN}-dev = " \
     /usr/lib/libof_core_shared.so \
     /usr/include/ofc \
 "
 
-FILES_${PN}-dev:append:smb = " \
+FILES:${PN}-dev:append:smb = " \
     /usr/lib/libof_smb_shared.so \
     /usr/lib/libof_netbios_shared.so \
     /usr/include/of_smb \
 "
 
-FILES_${PN}-staticdev = " \
+FILES:${PN}-staticdev = " \
     /usr/lib/libof_core_static.a \
 "
 
-FILES_${PN}-staticdev:append:smb = " \
+FILES:${PN}-staticdev:append:smb = " \
     /usr/lib/libof_smb_static.a \
     /usr/lib/libof_netbios_static.a \
 "
 
-FILES_${PN}-dbg = " \
+FILES:${PN}-dbg = " \
     /usr/src \
     /usr/bin/openfiles/.debug \
     /usr/lib/.debug \
