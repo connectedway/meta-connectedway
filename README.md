@@ -16,7 +16,7 @@ mbedtls recipe for v3.2.1.  Openfiles depends on v3.2.1 for CCM support.
 The default version of mbedtls supported by hardknott is v2.25.0.  Therefore
 we provide our own recipe.
 
-openfiles recipe for v5.1.1.  This will build openfiles for a yocto distro.
+openfiles recipe for v5.3.0.  This will build openfiles for a yocto distro.
 The following packages can be deployed:
 - openfiles: Deploys libof_smb and libof_core shared libraries along with
 /etc/openfiles.xml
@@ -28,7 +28,7 @@ recipes (not currently used)
 
 smbcp recipe:  This is an example application that utilizes the openfiles
 smb v2/v3 client.  It depends on the the openfiles package as well as krb5
-and mbedtls.  It is intended that this package will provide an example of
+and openssl.  It is intended that this package will provide an example of
 how embedded linux applications can utilize openfiles to access remote
 directories using SMBv2/v3.
 
@@ -39,7 +39,7 @@ Configuration files in conf that will setup the build environment.
 
 # Supported Distros
 
-There are two supported yocto distributions of poky:
+There are four supported yocto distributions of poky:
 - pyro
 - hardknott
 - dunfell
