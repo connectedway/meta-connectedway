@@ -1,16 +1,16 @@
 SECTION = "console/network"
 
 S = "${WORKDIR}/git"
-LICENSE = "CC-BY-ND-3.0 & Proprietary"
+LICENSE = "CC-BY-ND-4.0 & Proprietary"
 LIC_FILES_CHKSUM = "file://${S}/NOTICE;md5=c902fa3f368adf19a134813000affbe5 \
-                    file://${COREBASE}/meta/files/common-licenses/CC-BY-ND-3.0;md5=009338acda935b3c3a3255af957e6c14 \
                     file://${COREBASE}/meta/files/common-licenses/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28 "
-
-SRC_URI = "git://github.com/connectedway/openfiles.git;protocol=https;branch=5.3"
-SRCREV = "${AUTOREV}"
 
 OF_TYPE ?= "base"
 OVERRIDES:append = ":${OF_TYPE}:${OF_CONFIG}:${OF_DEBUG}"
+
+SRC_URI = "git://github.com/connectedway/openfiles.git;protocol=https;branch=5.3"
+SRC_URI:smb = "git://git@github.com/connectedway/openfiles.git;protocol=ssh;branch=5.3"
+SRCREV = "${AUTOREV}"
 
 DEPENDS = " \
     make-native \
